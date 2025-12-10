@@ -33,7 +33,7 @@ func (r *Repository) Register(u entity.User) (entity.User, error) {
 
 	query := `INSERT INTO Urls (name,phone_number,password ,created_at) VALUES ($1,$2,$3,NOW()) RETURNING id`
 
-	var id int
+	var id uint
 	err := r.DB.QueryRow(context.Background(), query, u.Name, u.PhoneNumber, u.Password).Scan(&id)
 
 	if err != nil {
