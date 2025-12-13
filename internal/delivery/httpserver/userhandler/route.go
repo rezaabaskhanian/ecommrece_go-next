@@ -9,4 +9,6 @@ func (h Handler) SetUserRoutes(e *echo.Echo) {
 	userGroupe := e.Group("users")
 
 	userGroupe.POST("/register", h.userRegister)
+
+	userGroupe.POST("/login", h.userLogin)
 }

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/entity"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/pkg/errmsg"
@@ -27,7 +28,19 @@ func (r *Repository) GetUserByID(userID int) (entity.User, error) {
 
 // GetUserByPhoneNumber implements UserRepository.
 func (r *Repository) GetUserByPhoneNumber(phoneNumber string) (entity.User, error) {
-	return entity.User{}, errors.New("not implemented")
+	const op = "postgres.Register"
+	query := `SELECT id, name, phone_number, password, created_at FROM users WHERE phone_number = $1`
+
+	var u entity.User
+	err := r.DB.QueryRow(context.Background(), query, phoneNumber).Scan(&u.ID, &u.Name, &u.PhoneNumber, &u.Password, &u.CreatedAt)
+
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return entity.User{}, richerror.New(op).WithErr(err).WithMessage(errmsg.ErrorMsgNotFound)
+		}
+		return entity.User{}, err
+	}
+	return u, nil
 
 }
 
