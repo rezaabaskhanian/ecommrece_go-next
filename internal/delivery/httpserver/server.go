@@ -3,16 +3,19 @@ package httpserver
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/delivery/httpserver/userhandler"
+	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/authservice"
+	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/userservice"
 )
 
 type Server struct {
 	userhandler userhandler.Handler
 }
 
-func New(userhandler userhandler.Handler) Server {
+func New(authSvc authservice.Service, userSvc userservice.Service) Server {
 	return Server{
-		userhandler: userhandler,
+		userhandler: userhandler.New(userSvc, authSvc),
 	}
 }
 
@@ -23,7 +26,7 @@ func (s Server) Serve() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	s.userHandler.SetUserRoutes(e)
+	s.userhandler.SetUserRoutes(e)
 
 	// Start server
 	// TODO : handle config for httpserver

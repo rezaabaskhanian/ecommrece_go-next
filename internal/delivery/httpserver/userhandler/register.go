@@ -5,9 +5,12 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/param"
+	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/pkg/richerror"
 )
 
 func (h Handler) userRegister(c echo.Context) error {
+
+	const op = "userhandler.userRegister"
 
 	var req param.RegisterRequest
 
@@ -20,7 +23,9 @@ func (h Handler) userRegister(c echo.Context) error {
 	res, err := h.usersvc.Register(req)
 
 	if err != nil {
-		return
+		return richerror.New(op).WithErr(err)
 	}
+
+	return c.JSON(http.StatusCreated, res)
 
 }

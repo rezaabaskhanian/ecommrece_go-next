@@ -8,4 +8,5 @@ type RegisterRequest struct {
 
 type RegisterResponse struct {
 	UserInfo UserInfo `json:"user"`
+	Tokens   Tokens   `json:"tokens"`
 }

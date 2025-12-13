@@ -1,4 +1,4 @@
-package usecasse
+package userservice
 
 import "github.com/rezaabaskhanian/ecommrece_go-next.git/internal/entity"
 
@@ -8,10 +8,16 @@ type Repository interface {
 	GetUserByID(userID int) (entity.User, error)
 }
 
-type Service struct {
-	repo Repository
+type AuthGenerator interface {
+	CreateAccessToken(user entity.User) (string, error)
+	CreateRefreshToken(user entity.User) (string, error)
 }
 
-func New(repo Repository) Service {
-	return Service{repo: repo}
+type Service struct {
+	repo Repository
+	auth AuthGenerator
+}
+
+func New(auth AuthGenerator, repo Repository) Service {
+	return Service{auth: auth, repo: repo}
 }

@@ -1,15 +1,18 @@
 package userhandler
 
 import (
-	usecasse "github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase"
+	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/authservice"
+	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/userservice"
 )
 
 type Handler struct {
-	usersvc usecasse.Service
+	usersvc userservice.Service
+	authsvc authservice.Service
 }
 
-func New(userSvc usecasse.Service) Handler {
+func New(userSvc userservice.Service, authSvc authservice.Service) Handler {
 	return Handler{
 		usersvc: userSvc,
+		authsvc: authSvc,
 	}
 }

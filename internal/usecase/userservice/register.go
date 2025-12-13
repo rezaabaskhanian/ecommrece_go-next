@@ -1,6 +1,7 @@
-package usecasse
+package userservice
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/entity"
@@ -32,12 +33,28 @@ func (s Service) Register(req param.RegisterRequest) (param.RegisterResponse, er
 		return param.RegisterResponse{}, richerror.New(op).WithErr(err).WithMessage(errmsg.ErrorMsgSomthingWentWrong)
 	}
 
+	accessToken, err := s.auth.CreateAccessToken(user)
+
+	if err != nil {
+		return param.RegisterResponse{}, fmt.Errorf("unexpected error %w", err)
+	}
+
+	refreshToken, err := s.auth.CreateRefreshToken(user)
+
+	if err != nil {
+		return param.RegisterResponse{}, fmt.Errorf("unexpected error %w", err)
+	}
+
 	return param.RegisterResponse{
 		// USerInfo write for better read
 		UserInfo: param.UserInfo{
 			ID:          createuser.ID,
 			Name:        createuser.Name,
 			PhoneNumber: createuser.PhoneNumber,
+		},
+		Tokens: param.Tokens{
+			AccessToken:  accessToken,
+			RefreshToken: refreshToken,
 		},
 	}, nil
 
