@@ -2,13 +2,20 @@ package userhandler
 
 import (
 	"github.com/labstack/echo/v4"
+	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/delivery/middleware"
 )
 
 func (h Handler) SetUserRoutes(e *echo.Echo) {
 
-	userGroupe := e.Group("users")
+	userGroup := e.Group("users")
 
-	userGroupe.POST("/register", h.userRegister)
+	userGroup.POST("/register", h.userRegister)
 
-	userGroupe.POST("/login", h.userLogin)
+	userGroup.POST("/login", h.userLogin)
+
+	userGroup.POST("/resetpassword", h.UserResetPass)
+
+	userGroup.GET("/profile", h.userProfile,
+		middleware.Auth(h.authsvc, h.authConfig))
+
 }

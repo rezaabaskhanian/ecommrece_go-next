@@ -8,7 +8,7 @@ type User struct {
 	PhoneNumber string `json:"phone_number"`
 	Password    string `json:"password"`
 
-	AvatarURL string `json:"avatar_url"`
+	AvatarURL *string `json:"avatar_url"` // nullable while use star use null into string
 
 	Role string `json:"role"` // user or admin
 

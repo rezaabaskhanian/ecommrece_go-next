@@ -13,9 +13,9 @@ type Server struct {
 	userhandler userhandler.Handler
 }
 
-func New(authSvc authservice.Service, userSvc userservice.Service) Server {
+func New(authSvc authservice.Service, userSvc userservice.Service, authConfig authservice.Config) Server {
 	return Server{
-		userhandler: userhandler.New(userSvc, authSvc),
+		userhandler: userhandler.New(userSvc, authSvc, authConfig),
 	}
 }
 

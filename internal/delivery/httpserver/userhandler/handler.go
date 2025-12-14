@@ -8,11 +8,14 @@ import (
 type Handler struct {
 	usersvc userservice.Service
 	authsvc authservice.Service
+
+	authConfig authservice.Config
 }
 
-func New(userSvc userservice.Service, authSvc authservice.Service) Handler {
+func New(userSvc userservice.Service, authSvc authservice.Service, authConfig authservice.Config) Handler {
 	return Handler{
-		usersvc: userSvc,
-		authsvc: authSvc,
+		usersvc:    userSvc,
+		authsvc:    authSvc,
+		authConfig: authConfig,
 	}
 }

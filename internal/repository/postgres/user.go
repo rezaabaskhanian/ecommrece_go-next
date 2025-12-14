@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/jackc/pgx/v5"
@@ -20,9 +19,23 @@ func MyNewPostgresUser(db *pgxpool.Pool) UserRepository {
 	return &Repository{DB: db}
 }
 
-// GetUserByID implements UserRepository.
 func (r *Repository) GetUserByID(userID int) (entity.User, error) {
-	return entity.User{}, errors.New("not implemented")
+	const op = "postgres.GetUserByID"
+
+	query := `SELECT id, name, phone_number, password, avatar_url,created_at FROM users WHERE id = $1`
+
+	var u entity.User
+
+	err := r.DB.QueryRow(context.Background(), query, userID).Scan(&u.ID, &u.Name, &u.PhoneNumber, &u.Password, &u.AvatarURL, &u.CreatedAt)
+
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return entity.User{}, richerror.New(op).WithErr(err).
+				WithMessage(errmsg.ErrorMsgCantScanQueryResult).WithKind(richerror.KindUnexpected)
+		}
+		return entity.User{}, err
+	}
+	return u, nil
 
 }
 
@@ -60,4 +73,26 @@ func (r *Repository) Register(u entity.User) (entity.User, error) {
 	}
 	u.ID = id
 	return u, nil
+}
+
+func (r *Repository) ResetPassword(phoneNumber, hashedPassword string) error {
+	const op = "postgres.ResetPassword"
+
+	query := `UPDATE users SET password = $1 WHERE phone_number = $2`
+
+	cmdTag, err := r.DB.Exec(context.Background(), query, hashedPassword, phoneNumber)
+
+	fmt.Println("PhoneNumber:", phoneNumber)
+	fmt.Println("HashedPassword:", hashedPassword)
+	fmt.Println("RowsAffected:", cmdTag.RowsAffected())
+	if err != nil {
+		return richerror.New(op).WithErr(err)
+	}
+
+	if cmdTag.RowsAffected() == 0 {
+		return richerror.New(op).WithMessage("user not found")
+	}
+
+	return nil
+
 }

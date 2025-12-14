@@ -6,6 +6,7 @@ type Repository interface {
 	GetUserByPhoneNumber(phoneNmber string) (entity.User, error)
 	Register(u entity.User) (entity.User, error)
 	GetUserByID(userID int) (entity.User, error)
+	ResetPassword(phoneNumber, hashedPassword string) error
 }
 
 type AuthGenerator interface {
