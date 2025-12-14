@@ -41,15 +41,15 @@ func main() {
 		},
 	}
 
-	authSvc, userSvc := setupService(cfg)
+	authSvc, userSvc, authConfig := setupService(cfg)
 
-	server := httpserver.New(authSvc, userSvc)
+	server := httpserver.New(authSvc, userSvc, authConfig)
 
 	server.Serve()
 
 }
 
-func setupService(cfg config.Config) (authservice.Service, userservice.Service) {
+func setupService(cfg config.Config) (authservice.Service, userservice.Service, authservice.Config) {
 
 	authSvc := authservice.New(cfg.Auth)
 
@@ -59,6 +59,6 @@ func setupService(cfg config.Config) (authservice.Service, userservice.Service) 
 
 	userSvc := userservice.New(authSvc, myPostgresRepoUser)
 
-	return authSvc, userSvc
+	return authSvc, userSvc, cfg.Auth
 
 }
