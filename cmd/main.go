@@ -7,6 +7,7 @@ import (
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/delivery/httpserver"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/repository/postgres"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/authservice"
+	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/productservice"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/userservice"
 )
 
@@ -41,15 +42,15 @@ func main() {
 		},
 	}
 
-	authSvc, userSvc, authConfig := setupService(cfg)
+	authSvc, userSvc, authConfig, productSvc := setupService(cfg)
 
-	server := httpserver.New(authSvc, userSvc, authConfig)
+	server := httpserver.New(authSvc, userSvc, authConfig, productSvc)
 
 	server.Serve()
 
 }
 
-func setupService(cfg config.Config) (authservice.Service, userservice.Service, authservice.Config) {
+func setupService(cfg config.Config) (authservice.Service, userservice.Service, authservice.Config, productservice.Service) {
 
 	authSvc := authservice.New(cfg.Auth)
 
@@ -57,8 +58,12 @@ func setupService(cfg config.Config) (authservice.Service, userservice.Service, 
 
 	myPostgresRepoUser := postgres.MyNewPostgresUser(myPostgresRepo)
 
+	myPostgresRepoProduct := postgres.MyNewPostgresProduct(myPostgresRepo)
+
 	userSvc := userservice.New(authSvc, myPostgresRepoUser)
 
-	return authSvc, userSvc, cfg.Auth
+	productSvc := productservice.New(myPostgresRepoProduct)
+
+	return authSvc, userSvc, cfg.Auth, productSvc
 
 }
