@@ -11,10 +11,6 @@ import (
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/pkg/richerror"
 )
 
-type Repository struct {
-	DB *pgxpool.Pool
-}
-
 func MyNewPostgresUser(db *pgxpool.Pool) UserRepository {
 	return &Repository{DB: db}
 }
