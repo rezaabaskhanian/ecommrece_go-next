@@ -5,17 +5,17 @@ import (
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/pkg/richerror"
 )
 
-func (s Service) ProductDetail(ID int) (param.ProductResponse, error) {
+func (s Service) ProductDetail(ID int) (param.Product, error) {
 
 	const op = "productservice.ProductDetail"
 
 	res, err := s.repo.GetProductWithID(ID)
 
 	if err != nil {
-		return param.ProductResponse{}, richerror.New(op).WithErr(err)
+		return param.Product{}, richerror.New(op).WithErr(err)
 	}
 
-	return param.ProductResponse{
+	return param.Product{
 		ID:          res.ID,
 		Name:        res.Name,
 		Description: res.Description,

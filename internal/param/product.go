@@ -2,7 +2,7 @@ package param
 
 import "time"
 
-type ProductResponse struct {
+type Product struct {
 	ID          int       `json:"id"`
 	Name        string    `json:"name"`
 	Description string    `json:"description,omitempty"`
@@ -11,8 +11,4 @@ type ProductResponse struct {
 	Category    string    `json:"category,omitempty"`
 	ImageURL    string    `json:"image_url,omitempty"`
 	CreatedAt   time.Time `json:"created_at"`
-}
-
-type ProductDetailReq struct {
-	ID int `json:"id"`
 }

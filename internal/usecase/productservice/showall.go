@@ -5,19 +5,22 @@ import (
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/pkg/richerror"
 )
 
-func (s Service) ShowAllProduct() ([]param.ProductResponse, error) {
+func (s Service) ShowAllProduct(req param.PaginateRequest) (param.PaginateResponse, error) {
 
 	const op = "productservice.ShowAllProduct"
-	products, err := s.repo.ShowAll()
+
+	limit := 10 // تعداد محصول در هر صفحه
+	products, totalItems, err := s.repo.ShowAll(req.Page, limit)
 
 	if err != nil {
-		return []param.ProductResponse{}, richerror.New(op).WithErr(err)
+		return param.PaginateResponse{}, richerror.New(op).WithErr(err)
 	}
 
-	res := make([]param.ProductResponse, 0, len(products))
+	res := make([]param.Product, 0, len(products))
 
 	for _, p := range products {
-		res = append(res, param.ProductResponse{
+		res = append(res, param.Product{
+
 			ID:          p.ID,
 			Name:        p.Name,
 			Description: p.Description,
@@ -28,7 +31,13 @@ func (s Service) ShowAllProduct() ([]param.ProductResponse, error) {
 			CreatedAt:   p.CreatedAt,
 		})
 	}
+	totalPage := (totalItems + limit - 1) / limit
 
-	return res, nil
+	return param.PaginateResponse{
+		Products:    res,
+		CurrentPage: req.Page,
+		TotalPage:   totalPage,
+		TotalItems:  totalItems,
+	}, nil
 
 }

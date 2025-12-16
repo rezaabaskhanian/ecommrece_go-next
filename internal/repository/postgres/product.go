@@ -45,16 +45,31 @@ func (r *Repository) GetProductWithID(ID int) (entity.Product, error) {
 }
 
 // ShowAll implements ProductRepository.
-func (r *Repository) ShowAll() ([]entity.Product, error) {
+func (r *Repository) ShowAll(page, limit int) ([]entity.Product, int, error) {
 
 	const op = "postgres.ShowAll"
 
-	query := "SELECT id,shop_id, name,description, price, stock, category, image_url  FROM products"
+	if page <= 0 {
+		page = 1
+	}
 
-	rows, err := r.DB.Query(context.Background(), query)
+	offset := (page - 1) * limit
+
+	var totoaltems int
+
+	countQuery := `SELECT COUNT(*) FROM products`
+
+	if err := r.DB.QueryRow(context.Background(), countQuery).Scan(&totoaltems); err != nil {
+		return nil, 0, richerror.New(op).WithErr(err).WithMessage("cant count products")
+
+	}
+
+	query := "SELECT id,shop_id, name,description, price, stock, category, image_url  FROM products ORDER BY id LIMIT $1 OFFSET $2"
+
+	rows, err := r.DB.Query(context.Background(), query, limit, offset)
 
 	if err != nil {
-		return []entity.Product{}, richerror.New(op).WithErr(err).WithMessage("dont get from dataBase")
+		return []entity.Product{}, 0, richerror.New(op).WithErr(err).WithMessage("dont get from dataBase")
 	}
 
 	defer rows.Close()
@@ -74,16 +89,16 @@ func (r *Repository) ShowAll() ([]entity.Product, error) {
 			&item.Category,
 			&item.ImageURL,
 		); err != nil {
-			return []entity.Product{}, richerror.New(op).WithErr(err).WithMessage("cant scan")
+			return []entity.Product{}, 0, richerror.New(op).WithErr(err).WithMessage("cant scan")
 		}
 
 		products = append(products, item)
 	}
 
 	if rows.Err() != nil {
-		return []entity.Product{}, richerror.New(op).WithErr(err).WithMessage("cant scan")
+		return []entity.Product{}, 0, richerror.New(op).WithErr(err).WithMessage("cant scan")
 	}
 
-	return products, nil
+	return products, totoaltems, nil
 
 }

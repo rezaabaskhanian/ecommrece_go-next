@@ -3,7 +3,7 @@ package productservice
 import "github.com/rezaabaskhanian/ecommrece_go-next.git/internal/entity"
 
 type Repository interface {
-	ShowAll() ([]entity.Product, error)
+	ShowAll(page, limit int) ([]entity.Product, int, error)
 	GetProductWithID(ID int) (entity.Product, error)
 }
 
