@@ -10,4 +10,6 @@ func (h HandlerProdcut) SetProductRoutes(e *echo.Echo) {
 
 	userGroup.GET("/detail/:id", h.GetDetailProduct)
 
+	userGroup.GET("/search", h.SearchProduct)
+
 }

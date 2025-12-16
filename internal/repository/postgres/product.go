@@ -102,3 +102,92 @@ func (r *Repository) ShowAll(page, limit int) ([]entity.Product, int, error) {
 	return products, totoaltems, nil
 
 }
+
+func (r *Repository) Serach(q string, page int) ([]entity.Product, int, error) {
+	const op = "postgres.Search"
+
+	if page <= 0 {
+		page = 1
+	}
+
+	limit := 10
+
+	offset := (page - 1) * limit
+
+	searchValue := "%" + q + "%"
+
+	var totalItems int
+	countQuery := `
+		SELECT COUNT(*)
+		FROM products
+		WHERE name ILIKE $1
+		   OR description ILIKE $1
+		   OR category ILIKE $1
+	`
+
+	if err := r.DB.QueryRow(
+		context.Background(),
+		countQuery,
+		searchValue,
+	).Scan(&totalItems); err != nil {
+		return nil, 0, richerror.New(op).
+			WithErr(err).
+			WithMessage("cant count search products")
+	}
+	query := `
+	SELECT id, shop_id, name, description, price, stock, category, image_url, created_at
+	FROM products
+	WHERE name ILIKE $1
+	   OR description ILIKE $1
+	   OR category ILIKE $1
+	ORDER BY id
+	LIMIT $2 OFFSET $3
+`
+
+	rows, err := r.DB.Query(
+		context.Background(),
+		query,
+		searchValue,
+		limit,
+		offset,
+	)
+	if err != nil {
+		return nil, 0, richerror.New(op).
+			WithErr(err).
+			WithMessage("cant search products")
+	}
+	defer rows.Close()
+
+	var products []entity.Product
+
+	for rows.Next() {
+		var p entity.Product
+
+		if err := rows.Scan(
+			&p.ID,
+			&p.ShopID,
+			&p.Name,
+			&p.Description,
+			&p.Price,
+			&p.Stock,
+			&p.Category,
+			&p.ImageURL,
+			&p.CreatedAt,
+		); err != nil {
+			return nil, 0, richerror.New(op).
+				WithErr(err).
+				WithMessage("cant scan product")
+		}
+
+		products = append(products, p)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, 0, richerror.New(op).
+			WithErr(err).
+			WithMessage("rows error")
+	}
+
+	return products, totalItems, nil
+
+}
