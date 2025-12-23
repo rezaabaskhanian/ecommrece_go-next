@@ -23,6 +23,5 @@ func (s Service) ProductDetail(ID int) (param.Product, error) {
 		Stock:       res.Stock,
 		Category:    res.Category,
 		ImageURL:    res.ImageURL,
-		CreatedAt:   res.CreatedAt,
 	}, nil
 }

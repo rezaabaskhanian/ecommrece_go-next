@@ -7,6 +7,7 @@ import (
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/delivery/httpserver"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/repository/postgres"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/authservice"
+	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/cartservice"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/productservice"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/userservice"
 )
@@ -42,15 +43,15 @@ func main() {
 		},
 	}
 
-	authSvc, userSvc, authConfig, productSvc := setupService(cfg)
+	authSvc, userSvc, authConfig, productSvc, cartSvc := setupService(cfg)
 
-	server := httpserver.New(authSvc, userSvc, authConfig, productSvc)
+	server := httpserver.New(authSvc, userSvc, authConfig, productSvc, cartSvc)
 
 	server.Serve()
 
 }
 
-func setupService(cfg config.Config) (authservice.Service, userservice.Service, authservice.Config, productservice.Service) {
+func setupService(cfg config.Config) (authservice.Service, userservice.Service, authservice.Config, productservice.Service, cartservice.Service) {
 
 	authSvc := authservice.New(cfg.Auth)
 
@@ -60,10 +61,14 @@ func setupService(cfg config.Config) (authservice.Service, userservice.Service, 
 
 	myPostgresRepoProduct := postgres.MyNewPostgresProduct(myPostgresRepo)
 
+	myPostgresRepoCart := postgres.MyNewPostgresCart(myPostgresRepo)
+
 	userSvc := userservice.New(authSvc, myPostgresRepoUser)
 
 	productSvc := productservice.New(myPostgresRepoProduct)
 
-	return authSvc, userSvc, cfg.Auth, productSvc
+	cartSvc := cartservice.New(myPostgresRepoCart)
+
+	return authSvc, userSvc, cfg.Auth, productSvc, cartSvc
 
 }

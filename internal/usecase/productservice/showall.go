@@ -28,7 +28,6 @@ func (s Service) ShowAllProduct(req param.PaginateRequest) (param.PaginateRespon
 			Stock:       p.Stock,
 			Category:    p.Category,
 			ImageURL:    p.ImageURL,
-			CreatedAt:   p.CreatedAt,
 		})
 	}
 	totalPage := (totalItems + limit - 1) / limit

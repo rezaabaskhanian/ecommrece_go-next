@@ -2,14 +2,14 @@ package producthandler
 
 import "github.com/labstack/echo/v4"
 
-func (h HandlerProdcut) SetProductRoutes(e *echo.Echo) {
+func (h Handler) SetProductRoutes(e *echo.Echo) {
 
-	userGroup := e.Group("product")
+	productGroup := e.Group("product")
 
-	userGroup.GET("/showAllProduct", h.ShowAllProduct)
+	productGroup.GET("/showAllProduct", h.ShowAllProduct)
 
-	userGroup.GET("/detail/:id", h.GetDetailProduct)
+	productGroup.GET("/detail/:id", h.GetDetailProduct)
 
-	userGroup.GET("/search", h.SearchProduct)
+	productGroup.GET("/search", h.SearchProduct)
 
 }

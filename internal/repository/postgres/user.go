@@ -62,8 +62,6 @@ func (r *Repository) Register(u entity.User) (entity.User, error) {
 	var id uint
 	err := r.DB.QueryRow(context.Background(), query, u.Name, u.PhoneNumber, u.Password).Scan(&id)
 
-	fmt.Println(err, "postgres.Register")
-
 	if err != nil {
 		return entity.User{}, richerror.New(op).WithErr(err).WithMessage(errmsg.ErrorMsgNotFound)
 	}

@@ -8,7 +8,7 @@ import (
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/pkg/richerror"
 )
 
-func (h HandlerProdcut) SearchProduct(c echo.Context) error {
+func (h Handler) SearchProduct(c echo.Context) error {
 
 	const op = "producthandler.Search"
 

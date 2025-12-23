@@ -25,7 +25,6 @@ func (s Service) Search(q string, page int) (param.PaginateResponse, error) {
 			Stock:       p.Stock,
 			Category:    p.Category,
 			ImageURL:    p.ImageURL,
-			CreatedAt:   p.CreatedAt,
 		})
 	}
 
