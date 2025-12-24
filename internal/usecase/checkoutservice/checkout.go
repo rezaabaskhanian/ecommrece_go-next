@@ -1,33 +1,130 @@
 package checkoutservcie
 
-import "github.com/rezaabaskhanian/ecommrece_go-next.git/internal/pkg/richerror"
+import (
+	"context"
 
-func (s Service) CheckOutOrder(userID int) error {
-	const op = "CheckoutService.Checkout"
+	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/entity"
+	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/pkg/richerror"
+)
 
-	cart, err := s.repoCart.GetOrCreateCart(userID)
+func (s Service) Checkout(userID int) (entity.OrderWithItem, error) {
+	const op = "checkout.Usecase.Checkout"
+
+	ctx := context.Background()
+
+	// 1️⃣ گرفتن cart
+	cart, err := s.cartRepo.GetOrCreateCart(userID)
 	if err != nil {
-		return richerror.New(op).WithErr(err).WithMessage("خطا در گرفتن سبد خرید")
+		return entity.OrderWithItem{},
+			richerror.New(op).WithErr(err).WithMessage("خطا در دریافت سبد خرید")
 	}
 
-	items, err := s.repoCart.GetCartItems(cart.ID)
+	cartItems, err := s.cartRepo.GetCartItems(cart.ID)
 	if err != nil {
-		return richerror.New(op).WithErr(err).WithMessage("خطا در گرفتن آیتم‌های سبد")
+		return entity.OrderWithItem{},
+			richerror.New(op).WithErr(err).WithMessage("خطا در دریافت آیتم‌های سبد")
 	}
 
-	if len(items) == 0 {
-		return richerror.New(op).WithMessage("سبد خرید خالی است")
+	if len(cartItems) == 0 {
+		return entity.OrderWithItem{},
+			richerror.New(op).WithMessage("سبد خرید خالی است")
 	}
 
-	total := 0.0
-	for _, item := range items {
-		total += item.Price * float64(item.Quantity)
+	// 2️⃣ ساخت OrderItem ها + محاسبه total
+	var (
+		total      float64
+		orderItems []entity.OrderItem
+	)
+
+	for _, item := range cartItems {
+
+		product, err := s.productRepo.GetProductWithID(item.ProductID)
+		if err != nil {
+			return entity.OrderWithItem{},
+				richerror.New(op).WithErr(err).WithMessage("محصول یافت نشد")
+		}
+
+		if product.Stock < item.Quantity {
+			return entity.OrderWithItem{},
+				richerror.New(op).WithMessage("موجودی کافی نیست")
+		}
+
+		total += product.Price * float64(item.Quantity)
+
+		orderItems = append(orderItems, entity.OrderItem{
+			ProductID: product.ID,
+			Name:      product.Name,
+			Price:     product.Price, // snapshot
+			Quantity:  item.Quantity,
+		})
 	}
 
-	err = s.repo.Checkout(userID, cart.ID, items, total)
+	// 3️⃣ ساخت Order
+	order := entity.Order{
+		USerID: userID,
+		CartID: cart.ID,
+		Status: "pending_payment",
+		Total:  total,
+	}
+
+	// 4️⃣ شروع Transaction
+	tx, err := s.beginRepo.BeginTx(ctx)
 	if err != nil {
-		return richerror.New(op).WithErr(err).WithMessage("خطا در Checkout")
+		return entity.OrderWithItem{},
+			richerror.New(op).WithErr(err).WithMessage("خطا در شروع transaction")
+	}
+	defer tx.Rollback(ctx)
+
+	// 5️⃣ ذخیره Order
+	orderID, err := s.orderRepo.CreateOrder(ctx, tx, order)
+	if err != nil {
+		return entity.OrderWithItem{},
+			richerror.New(op).WithErr(err).WithMessage("خطا در ایجاد سفارش")
 	}
 
-	return nil
+	// set OrderID
+	for i := range orderItems {
+		orderItems[i].OrderID = orderID
+	}
+
+	// 6️⃣ کاهش موجودی
+	for _, item := range orderItems {
+		err = s.productRepo.DecreaseStock(ctx, tx, item.ProductID, item.Quantity)
+		if err != nil {
+			return entity.OrderWithItem{},
+				richerror.New(op).WithErr(err).WithMessage("موجودی کافی نیست")
+		}
+	}
+
+	// 7️⃣ ذخیره OrderItems
+	err = s.orderRepo.CreateOrderItems(ctx, tx, orderItems)
+	if err != nil {
+		return entity.OrderWithItem{},
+			richerror.New(op).WithErr(err).WithMessage("خطا در ثبت آیتم‌های سفارش")
+	}
+
+	// 8️⃣ پاک کردن cart
+	err = s.cartRepo.ClearCart(ctx, tx, cart.ID)
+	if err != nil {
+		return entity.OrderWithItem{},
+			richerror.New(op).WithErr(err).WithMessage("خطا در پاک کردن سبد خرید")
+	}
+
+	// 9️⃣ Commit
+	if err := tx.Commit(ctx); err != nil {
+		return entity.OrderWithItem{},
+			richerror.New(op).WithErr(err).WithMessage("خطا در commit transaction")
+	}
+
+	// 10️⃣ response
+	return entity.OrderWithItem{
+		Order: entity.Order{
+			ID:     orderID,
+			USerID: userID,
+			CartID: cart.ID,
+			Status: "pending_payment",
+			Total:  total,
+		},
+		Items: orderItems,
+	}, nil
 }

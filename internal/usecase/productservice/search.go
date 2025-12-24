@@ -8,7 +8,7 @@ import (
 func (s Service) Search(q string, page int) (param.PaginateResponse, error) {
 	const op = "productservice.search"
 
-	products, totalItems, err := s.repo.Serach(q, page)
+	products, totalItems, err := s.repo.Search(q, page)
 
 	if err != nil {
 		return param.PaginateResponse{}, richerror.New(op).WithErr(err)

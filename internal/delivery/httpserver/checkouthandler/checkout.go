@@ -14,21 +14,23 @@ func getClaims(c echo.Context) *authservice.Claims {
 }
 
 func (h Handler) CheckOutCart(c echo.Context) error {
-
-	const op = "chackouhandler.CheckOutCart"
+	const op = "checkouthandler.CheckOutCart"
 
 	claims := getClaims(c)
+	userID := int(claims.UserID)
 
-	err := h.checkoutSvc.CheckOutOrder(int(claims.UserID))
-
+	result, err := h.checkoutSvc.Checkout(userID)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{
-			"message": err.Error(),
+		// اینجا می‌تونی error mapping انجام بدی
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"error": err.Error(),
+			"op":    op,
 		})
 	}
 
-	return c.JSON(http.StatusOK, map[string]string{
-		"messge": "checkout is succeful",
+	return c.JSON(http.StatusOK, map[string]any{
+		"message": "checkout successful",
+		"order":   result.Order,
+		"items":   result.Items,
 	})
-
 }

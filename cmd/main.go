@@ -8,6 +8,7 @@ import (
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/repository/postgres"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/authservice"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/cartservice"
+	checkoutservcie "github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/checkoutservice"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/productservice"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/userservice"
 )
@@ -43,32 +44,32 @@ func main() {
 		},
 	}
 
-	authSvc, userSvc, authConfig, productSvc, cartSvc := setupService(cfg)
+	authSvc, userSvc, authConfig, productSvc, cartSvc, checkoutSvc := setupService(cfg)
 
-	server := httpserver.New(authSvc, userSvc, authConfig, productSvc, cartSvc)
+	server := httpserver.New(authSvc, userSvc, authConfig, productSvc, cartSvc, checkoutSvc)
 
 	server.Serve()
 
 }
 
-func setupService(cfg config.Config) (authservice.Service, userservice.Service, authservice.Config, productservice.Service, cartservice.Service) {
+func setupService(cfg config.Config) (authservice.Service, userservice.Service, authservice.Config,
+	productservice.Service, cartservice.Service, checkoutservcie.Service) {
 
 	authSvc := authservice.New(cfg.Auth)
 
 	myPostgresRepo := postgres.New(cfg.MyPostgres)
 
-	myPostgresRepoUser := postgres.MyNewPostgresUser(myPostgresRepo)
+	userRepo := postgres.NewUserRepository(myPostgresRepo)
+	productRepo := postgres.NewProductRepository(myPostgresRepo)
+	cartRepo := postgres.NewCartRepository(myPostgresRepo)
+	orderRepo := postgres.NewOrderRepository(myPostgresRepo)
 
-	myPostgresRepoProduct := postgres.MyNewPostgresProduct(myPostgresRepo)
+	userSvc := userservice.New(authSvc, userRepo)
+	productSvc := productservice.New(productRepo)
+	cartSvc := cartservice.New(cartRepo)
 
-	myPostgresRepoCart := postgres.MyNewPostgresCart(myPostgresRepo)
+	checkoutSvc := checkoutservcie.New(cartRepo, productSvc, orderRepo, orderRepo)
 
-	userSvc := userservice.New(authSvc, myPostgresRepoUser)
-
-	productSvc := productservice.New(myPostgresRepoProduct)
-
-	cartSvc := cartservice.New(myPostgresRepoCart)
-
-	return authSvc, userSvc, cfg.Auth, productSvc, cartSvc
+	return authSvc, userSvc, cfg.Auth, productSvc, cartSvc, checkoutSvc
 
 }
