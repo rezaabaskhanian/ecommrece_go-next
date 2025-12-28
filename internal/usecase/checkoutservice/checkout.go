@@ -32,7 +32,7 @@ func (s Service) Checkout(userID int) (entity.OrderWithItem, error) {
 
 	// 2️⃣ ساخت OrderItem ها + محاسبه total
 	var (
-		total      float64
+		total      int64
 		orderItems []entity.OrderItem
 	)
 
@@ -49,7 +49,7 @@ func (s Service) Checkout(userID int) (entity.OrderWithItem, error) {
 				richerror.New(op).WithMessage("موجودی کافی نیست")
 		}
 
-		total += product.Price * float64(item.Quantity)
+		total += product.Price * int64(item.Quantity)
 
 		orderItems = append(orderItems, entity.OrderItem{
 			ProductID: product.ID,

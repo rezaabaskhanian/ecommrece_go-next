@@ -23,7 +23,7 @@ func (s Service) Search(q string, page int) (param.PaginateResponse, error) {
 			Description: p.Description,
 			Price:       p.Price,
 			Stock:       p.Stock,
-			Category:    p.Category,
+			CategoryID:  p.CategoryID,
 			ImageURL:    p.ImageURL,
 		})
 	}

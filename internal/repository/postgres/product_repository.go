@@ -68,7 +68,7 @@ func (r *ProductRepository) ShowAll(page int, limit int) ([]entity.Product, int,
 			&item.Description,
 			&item.Price,
 			&item.Stock,
-			&item.Category,
+			&item.CategoryID,
 			&item.ImageURL,
 		); err != nil {
 			return []entity.Product{}, 0, richerror.New(op).WithErr(err).WithMessage("cant scan")
@@ -93,7 +93,7 @@ func (r *ProductRepository) GetProductWithID(ID int) (entity.Product, error) {
 	var p entity.Product
 
 	err := r.db.QueryRow(context.Background(), query, ID).Scan(
-		&p.ID, &p.ShopID, &p.Name, &p.Description, &p.Price, &p.Stock, &p.Category, &p.ImageURL, &p.CreatedAt)
+		&p.ID, &p.ShopID, &p.Name, &p.Description, &p.Price, &p.Stock, &p.CategoryID, &p.ImageURL, &p.CreatedAt)
 
 	if err != nil {
 		if err == pgx.ErrNoRows {
@@ -142,7 +142,7 @@ func (r *ProductRepository) Search(q string, page int) ([]entity.Product, int, e
 	var products []entity.Product
 	for rows.Next() {
 		var p entity.Product
-		if err := rows.Scan(&p.ID, &p.ShopID, &p.Name, &p.Description, &p.Price, &p.Stock, &p.Category, &p.ImageURL, &p.CreatedAt); err != nil {
+		if err := rows.Scan(&p.ID, &p.ShopID, &p.Name, &p.Description, &p.Price, &p.Stock, &p.CategoryID, &p.ImageURL, &p.CreatedAt); err != nil {
 			return nil, 0, richerror.New(op).WithErr(err).WithMessage("cant scan product")
 		}
 		products = append(products, p)

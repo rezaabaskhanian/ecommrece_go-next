@@ -26,7 +26,7 @@ func (s Service) ShowAllProduct(req param.PaginateRequest) (param.PaginateRespon
 			Description: p.Description,
 			Price:       p.Price,
 			Stock:       p.Stock,
-			Category:    p.Category,
+			CategoryID:  p.CategoryID,
 			ImageURL:    p.ImageURL,
 		})
 	}

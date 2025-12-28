@@ -24,9 +24,9 @@ func main() {
 			ShopID:      1,
 			Name:        fmt.Sprintf("Terrarium %d", i),
 			Description: fmt.Sprintf("This is Terrarium number %d", i),
-			Price:       float64(50 + i), // قیمت تصادفی ساده
-			Stock:       10 + i%5,        // موجودی تصادفی
-			Category:    "Plants",
+			Price:       int64(50 + i), // قیمت تصادفی ساده
+			Stock:       10 + i%5,      // موجودی تصادفی
+			CategoryID:  5,
 			ImageURL:    "",
 			CreatedAt:   time.Now(),
 			UpdatedAt:   time.Now(),
@@ -45,7 +45,7 @@ func main() {
 			product.Description,
 			product.Price,
 			product.Stock,
-			product.Category,
+			product.CategoryID,
 			product.ImageURL,
 			product.CreatedAt,
 			product.UpdatedAt,
