@@ -30,12 +30,12 @@ func New(cfg Config) Service {
 }
 
 func (s Service) CreateAccessToken(user entity.User) (string, error) {
-	return s.creatoken(user.ID, s.config.AccessSubject, s.config.AccessExpirationTime)
+	return s.creatoken(user.ID, user.Role, s.config.AccessSubject, s.config.AccessExpirationTime)
 
 }
 
 func (s Service) CreateRefreshToken(user entity.User) (string, error) {
-	return s.creatoken(user.ID, s.config.RefreshSubject, s.config.RefreshExpiratoonTime)
+	return s.creatoken(user.ID, user.Role, s.config.RefreshSubject, s.config.RefreshExpiratoonTime)
 
 }
 
@@ -66,10 +66,11 @@ func (s Service) ParseToken(authHeader string) (*Claims, error) {
 
 }
 
-func (s Service) creatoken(userID uint, subject string, expireDuration time.Duration) (string, error) {
+func (s Service) creatoken(userID uint, role, subject string, expireDuration time.Duration) (string, error) {
 	const op = "auhtservice.createtoken"
 	claims := Claims{
 		UserID: userID,
+		Role:   role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Subject: subject,
 			//TODO: set the expire time

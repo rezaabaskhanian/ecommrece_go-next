@@ -5,11 +5,13 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/delivery/httpserver/carthandler"
+	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/delivery/httpserver/categoryhandler"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/delivery/httpserver/checkouthandler"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/delivery/httpserver/producthandler"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/delivery/httpserver/userhandler"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/authservice"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/cartservice"
+	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/categoryservice"
 	checkoutservcie "github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/checkoutservice"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/productservice"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/userservice"
@@ -20,12 +22,13 @@ type Server struct {
 	product  producthandler.Handler
 	cart     carthandler.Handler
 	checkout checkouthandler.Handler
+	category categoryhandler.Handler
 }
 
 func New(authSvc authservice.Service, userSvc userservice.Service,
 	authConfig authservice.Config, productSvc productservice.Service,
 	cartSvc cartservice.Service,
-	checkSvc checkoutservcie.Service) Server {
+	checkSvc checkoutservcie.Service ,categorySvc categoryservice.Service) Server {
 	return Server{
 		user:    userhandler.New(userSvc, authSvc, authConfig),
 		product: producthandler.New(productSvc, authConfig, authSvc),
@@ -33,6 +36,8 @@ func New(authSvc authservice.Service, userSvc userservice.Service,
 		cart: carthandler.New(cartSvc, authSvc, authConfig),
 
 		checkout: checkouthandler.New(checkSvc),
+
+		category: categoryhandler.New(categorySvc,authSvc,authConfig),
 	}
 }
 
@@ -50,6 +55,8 @@ func (s Server) Serve() {
 	s.cart.SetCartRoutes(e)
 
 	s.checkout.SetCheckRoutes(e)
+
+	s.category.SetCategoryRoutes(e)
 
 	// Start server
 	// TODO : handle config for httpserver

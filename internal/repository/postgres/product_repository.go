@@ -157,7 +157,7 @@ func (r *ProductRepository) Search(q string, page int) ([]entity.Product, int, e
 
 // DecreaseStock decreases the stock of a product in a transaction-safe way
 func (r *ProductRepository) DecreaseStock(ctx context.Context, tx pgx.Tx, productID, qty int) error {
-	const op = "postgres.ProductRepository.DecreaseStock"
+	const op = "postgres.DecreaseStock"
 
 	res, err := tx.Exec(ctx,
 		`UPDATE products SET stock = stock - $1 WHERE id = $2 AND stock >= $1`,

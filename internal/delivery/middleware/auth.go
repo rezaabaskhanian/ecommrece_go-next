@@ -39,3 +39,25 @@ func Auth(service authservice.Service, config authservice.Config) echo.Middlewar
 		},
 	})
 }
+
+func RequireRole(roles ...string) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+
+			claims, ok := c.Get(cfg.AuthMiddlewareContextKey).(*authservice.Claims)
+			if !ok || claims == nil {
+				return echo.ErrUnauthorized
+			}
+
+			for _, role := range roles {
+				if claims.Role == role {
+					return next(c)
+				}
+			}
+
+			return c.JSON(http.StatusForbidden, map[string]string{
+				"message": "شما اجازه دسترسی به این بخش را ندارید",
+			})
+		}
+	}
+}

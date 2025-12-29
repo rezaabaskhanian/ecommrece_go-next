@@ -8,6 +8,7 @@ import (
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/repository/postgres"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/authservice"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/cartservice"
+	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/categoryservice"
 	checkoutservcie "github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/checkoutservice"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/productservice"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/userservice"
@@ -44,16 +45,16 @@ func main() {
 		},
 	}
 
-	authSvc, userSvc, authConfig, productSvc, cartSvc, checkoutSvc := setupService(cfg)
+	authSvc, userSvc, authConfig, productSvc, cartSvc, checkoutSvc, categorySvc := setupService(cfg)
 
-	server := httpserver.New(authSvc, userSvc, authConfig, productSvc, cartSvc, checkoutSvc)
+	server := httpserver.New(authSvc, userSvc, authConfig, productSvc, cartSvc, checkoutSvc, categorySvc)
 
 	server.Serve()
 
 }
 
 func setupService(cfg config.Config) (authservice.Service, userservice.Service, authservice.Config,
-	productservice.Service, cartservice.Service, checkoutservcie.Service) {
+	productservice.Service, cartservice.Service, checkoutservcie.Service, categoryservice.Service) {
 
 	authSvc := authservice.New(cfg.Auth)
 
@@ -63,13 +64,15 @@ func setupService(cfg config.Config) (authservice.Service, userservice.Service, 
 	productRepo := postgres.NewProductRepository(myPostgresRepo)
 	cartRepo := postgres.NewCartRepository(myPostgresRepo)
 	orderRepo := postgres.NewOrderRepository(myPostgresRepo)
+	categoryRepo := postgres.NewCategoryRepository(myPostgresRepo)
 
 	userSvc := userservice.New(authSvc, userRepo)
 	productSvc := productservice.New(productRepo)
 	cartSvc := cartservice.New(cartRepo)
+	categorySvc := categoryservice.New(categoryRepo)
 
 	checkoutSvc := checkoutservcie.New(cartRepo, productSvc, orderRepo, orderRepo)
 
-	return authSvc, userSvc, cfg.Auth, productSvc, cartSvc, checkoutSvc
+	return authSvc, userSvc, cfg.Auth, productSvc, cartSvc, checkoutSvc, categorySvc
 
 }

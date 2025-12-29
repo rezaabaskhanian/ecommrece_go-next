@@ -22,12 +22,21 @@ CREATE TABLE products (
 
     stock INT NOT NULL DEFAULT 0,
 
-    category VARCHAR(100),
+    category_id INT NOT NULL,
 
     image_url TEXT,
 
     created_at TIMESTAMP  DEFAULT NOW(),
 
     updated_at TIMESTAMP
+);
+
+
+CREATE TABLE categories (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  slug VARCHAR(100) NOT NULL UNIQUE,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
