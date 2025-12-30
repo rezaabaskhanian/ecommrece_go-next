@@ -25,7 +25,13 @@ const (
 	RefreshTokenExpireDuration = time.Hour * 24 * 7 * 30
 )
 
-const ()
+func mustInt(v string) int {
+	i, err := strconv.Atoi(v)
+	if err != nil {
+		log.Fatal("invalid int env:", v)
+	}
+	return i
+}
 
 func main() {
 
@@ -49,12 +55,20 @@ func main() {
 			AccessSubject:         AccessTokenSubject,
 			RefreshSubject:        RefreshTokenSubject,
 		},
+		// MyPostgres: postgres.Config{
+		// 	UserName: "user",
+		// 	Password: "pass",
+		// 	Host:     "localhost",
+		// 	Port:     5433,
+		// 	DBName:   "ecommerce",
+		// },
+
 		MyPostgres: postgres.Config{
-			UserName: "user",
-			Password: "pass",
-			Host:     "localhost",
-			Port:     5433,
-			DBName:   "ecommerce",
+			UserName: os.Getenv("PGUSER"),
+			Password: os.Getenv("PGPASSWORD"),
+			Host:     os.Getenv("PGHOST"),
+			Port:     mustInt(os.Getenv("PGPORT")),
+			DBName:   os.Getenv("PGDATABASE"),
 		},
 	}
 
