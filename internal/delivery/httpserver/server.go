@@ -52,6 +52,13 @@ func (s Server) Serve() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
+	// ✅ Health Check
+	e.GET("/health", func(c echo.Context) error {
+		return c.JSON(200, map[string]string{
+			"status": "ok",
+		})
+	})
+
 	s.user.SetUserRoutes(e)
 
 	s.product.SetProductRoutes(e)
