@@ -1,6 +1,8 @@
 package httpserver
 
 import (
+	"fmt"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
@@ -18,6 +20,7 @@ import (
 )
 
 type Server struct {
+	port     int
 	user     userhandler.Handler
 	product  producthandler.Handler
 	cart     carthandler.Handler
@@ -25,11 +28,12 @@ type Server struct {
 	category categoryhandler.Handler
 }
 
-func New(authSvc authservice.Service, userSvc userservice.Service,
+func New(port int, authSvc authservice.Service, userSvc userservice.Service,
 	authConfig authservice.Config, productSvc productservice.Service,
 	cartSvc cartservice.Service,
-	checkSvc checkoutservcie.Service ,categorySvc categoryservice.Service) Server {
+	checkSvc checkoutservcie.Service, categorySvc categoryservice.Service) Server {
 	return Server{
+		port:    port,
 		user:    userhandler.New(userSvc, authSvc, authConfig),
 		product: producthandler.New(productSvc, authConfig, authSvc),
 
@@ -37,7 +41,7 @@ func New(authSvc authservice.Service, userSvc userservice.Service,
 
 		checkout: checkouthandler.New(checkSvc),
 
-		category: categoryhandler.New(categorySvc,authSvc,authConfig),
+		category: categoryhandler.New(categorySvc, authSvc, authConfig),
 	}
 }
 
@@ -60,5 +64,10 @@ func (s Server) Serve() {
 
 	// Start server
 	// TODO : handle config for httpserver
-	e.Logger.Fatal(e.Start(":8084"))
+	// e.Logger.Fatal(e.Start(":8084"))
+
+	addr := fmt.Sprintf(":%d", s.port)
+	e.Logger.Infof("listening on %s", addr)
+
+	e.Logger.Fatal(e.Start(addr))
 }

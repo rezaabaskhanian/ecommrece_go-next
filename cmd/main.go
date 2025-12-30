@@ -1,6 +1,9 @@
 package main
 
 import (
+	"log"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/config"
@@ -26,8 +29,18 @@ const ()
 
 func main() {
 
+	portStr := os.Getenv("PORT")
+	if portStr == "" {
+		portStr = "8081"
+	}
+
+	port, err := strconv.Atoi(portStr)
+	if err != nil {
+		log.Fatal("invalid PORT:", err)
+	}
+
 	cfg := config.Config{
-		HTTPServer: config.HTTPServer{Port: 8081},
+		HTTPServer: config.HTTPServer{Port: port},
 		Auth: authservice.Config{
 			SignKey:              jwtSignKey,
 			AccessExpirationTime: AccessTokenExpireDuration,
@@ -47,7 +60,7 @@ func main() {
 
 	authSvc, userSvc, authConfig, productSvc, cartSvc, checkoutSvc, categorySvc := setupService(cfg)
 
-	server := httpserver.New(authSvc, userSvc, authConfig, productSvc, cartSvc, checkoutSvc, categorySvc)
+	server := httpserver.New(cfg.HTTPServer.Port, authSvc, userSvc, authConfig, productSvc, cartSvc, checkoutSvc, categorySvc)
 
 	server.Serve()
 
