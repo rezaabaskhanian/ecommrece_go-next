@@ -5,17 +5,20 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/entity"
+	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/repository/model"
 )
 
 type Repository interface {
-	ShowAll(page, limit int) ([]entity.Product, int, error)
+	ShowAll(page, limit int) ([]model.ProductWithCategory, int, error)
 	DecreaseStock(ctx context.Context, tx pgx.Tx, productID, qty int) error
-	GetProductWithID(ID int) (entity.Product, error)
-	Search(q string, page int) ([]entity.Product, int, error)
+	GetProductWithID(ctx context.Context, ID int) (entity.Product, error)
+	Search(q string, page int) ([]model.ProductWithCategory, int, error)
 
-	// AddProduct(productID int, name, desc string, price float64, stock int, category string, imageurl string) error
-	// EditProduct(productID int, name, desc string, price float64, stock int, category string, imageurl string) error
-	// DeleteProduct(productID int) error
+	ShowByCategory(categorySlug string, page int, limit int) ([]model.ProductWithCategory, int, error)
+
+	AddProduct(ctx context.Context, p entity.Product) error
+	UpdateProduct(ctx context.Context, p entity.Product) error
+	DeleteProduct(ctx context.Context, productID int) error
 }
 
 type Service struct {
@@ -27,8 +30,8 @@ func New(repo Repository) Service {
 }
 
 // GetProductWithID implements checkoutservcie.ProductRepository.
-func (s Service) GetProductWithID(ID int) (entity.Product, error) {
-	return s.repo.GetProductWithID(ID)
+func (s Service) GetProductWithID(ctx context.Context, ID int) (entity.Product, error) {
+	return s.repo.GetProductWithID(ctx, ID)
 }
 
 // DecreaseStock implements checkoutservcie.ProductRepository.

@@ -14,7 +14,7 @@ type CartRepository interface {
 }
 
 type ProductRepository interface {
-	GetProductWithID(ID int) (entity.Product, error)
+	GetProductWithID(ctx context.Context, ID int) (entity.Product, error)
 	DecreaseStock(ctx context.Context, tx pgx.Tx, productID int, qty int) error
 }
 

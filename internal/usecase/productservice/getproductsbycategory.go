@@ -1,16 +1,18 @@
 package productservice
 
 import (
+	"context"
+
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/param"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/pkg/richerror"
 )
 
-func (s Service) ShowAllProduct(req param.PaginateRequest) (param.PaginateResponse, error) {
+func (s Service) GetProductsByCategoryPaginated(ctx context.Context, req param.ProductWithCategoryReq) (param.PaginateResponse, error) {
 
-	const op = "productservice.ShowAllProduct"
+	const op = "productservice.GetProductsByCategoryPaginated"
 
 	limit := 10
-	products, totalItems, err := s.repo.ShowAll(req.Page, limit)
+	products, totalItems, err := s.repo.ShowByCategory(req.Slug, req.Page, limit)
 
 	if err != nil {
 		return param.PaginateResponse{}, richerror.New(op).WithErr(err)
@@ -40,5 +42,4 @@ func (s Service) ShowAllProduct(req param.PaginateRequest) (param.PaginateRespon
 		TotalPage:   totalPage,
 		TotalItems:  totalItems,
 	}, nil
-
 }

@@ -38,7 +38,7 @@ func (s Service) Checkout(userID int) (entity.OrderWithItem, error) {
 
 	for _, item := range cartItems {
 
-		product, err := s.productRepo.GetProductWithID(item.ProductID)
+		product, err := s.productRepo.GetProductWithID(context.Background(), item.ProductID)
 		if err != nil {
 			return entity.OrderWithItem{},
 				richerror.New(op).WithErr(err).WithMessage("محصول یافت نشد")
