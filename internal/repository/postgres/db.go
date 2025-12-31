@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -39,7 +40,7 @@ type Config struct {
 // }
 
 func NewFromDatabaseURL() *pgxpool.Pool {
-	dbURL := os.Getenv("DATABASE_URL")
+	dbURL := strings.TrimSpace(os.Getenv("DATABASE_URL"))
 	if dbURL == "" {
 		log.Fatal("DATABASE_URL env not set")
 	}
