@@ -45,11 +45,6 @@ func main() {
 		log.Fatal("invalid PORT:", err)
 	}
 
-	pgPort := os.Getenv("PGPORT")
-	if pgPort == "" {
-		log.Fatal("PGPORT env not set")
-	}
-
 	cfg := config.Config{
 		HTTPServer: config.HTTPServer{Port: port},
 		Auth: authservice.Config{
@@ -68,13 +63,13 @@ func main() {
 		// 	DBName:   "ecommerce",
 		// },
 
-		MyPostgres: postgres.Config{
-			UserName: os.Getenv("PGUSER"),
-			Password: os.Getenv("PGPASSWORD"),
-			Host:     os.Getenv("PGHOST"),
-			Port:     mustInt(pgPort),
-			DBName:   os.Getenv("PGDATABASE"),
-		},
+		// MyPostgres: postgres.Config{
+		// 	UserName: os.Getenv("PGUSER"),
+		// 	Password: os.Getenv("PGPASSWORD"),
+		// 	Host:     os.Getenv("PGHOST"),
+		// 	Port:     mustInt(os.Getenv("PGPORT")),
+		// 	DBName:   os.Getenv("PGDATABASE"),
+		// },
 	}
 
 	authSvc, userSvc, authConfig, productSvc, cartSvc, checkoutSvc, categorySvc := setupService(cfg)

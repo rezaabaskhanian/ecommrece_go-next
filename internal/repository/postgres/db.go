@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -31,6 +32,20 @@ func New(cfg Config) *pgxpool.Pool {
 	)
 
 	pool, err := pgxpool.New(context.Background(), connStr)
+	if err != nil {
+		log.Fatal("Unable to connect to database:", err)
+	}
+
+	return pool
+}
+
+func NewFromDatabaseURL() *pgxpool.Pool {
+	dbURL := os.Getenv("DATABASE_URL")
+	if dbURL == "" {
+		log.Fatal("DATABASE_URL env not set")
+	}
+
+	pool, err := pgxpool.New(context.Background(), dbURL)
 	if err != nil {
 		log.Fatal("Unable to connect to database:", err)
 	}
