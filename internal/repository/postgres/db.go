@@ -40,7 +40,7 @@ func New(cfg Config) *pgxpool.Pool {
 }
 
 func NewFromDatabaseURL() *pgxpool.Pool {
-	dbURL := os.Getenv("DATABASE_URL")
+	dbURL := os.Getenv("postgresql://postgres:kMzbeKbcbZFSWhXWoYraKZfVwEbmosiY@crossover.proxy.rlwy.net:39904/railway")
 	if dbURL == "" {
 		log.Fatal("DATABASE_URL env not set")
 	}
