@@ -85,7 +85,10 @@ func setupService(cfg config.Config) (authservice.Service, userservice.Service, 
 
 	authSvc := authservice.New(cfg.Auth)
 
-	myPostgresRepo := postgres.New(cfg.MyPostgres)
+	// myPostgresRepo := postgres.New(cfg.MyPostgres)
+
+	myPostgresRepo := postgres.NewFromDatabaseURL()
+	defer myPostgresRepo.Close()
 
 	userRepo := postgres.NewUserRepository(myPostgresRepo)
 	productRepo := postgres.NewProductRepository(myPostgresRepo)
