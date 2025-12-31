@@ -45,6 +45,11 @@ func main() {
 		log.Fatal("invalid PORT:", err)
 	}
 
+	pgPort := os.Getenv("PGPORT")
+	if pgPort == "" {
+		log.Fatal("PGPORT env not set")
+	}
+
 	cfg := config.Config{
 		HTTPServer: config.HTTPServer{Port: port},
 		Auth: authservice.Config{
@@ -67,7 +72,7 @@ func main() {
 			UserName: os.Getenv("PGUSER"),
 			Password: os.Getenv("PGPASSWORD"),
 			Host:     os.Getenv("PGHOST"),
-			Port:     mustInt(os.Getenv("PGPORT")),
+			Port:     mustInt(pgPort),
 			DBName:   os.Getenv("PGDATABASE"),
 		},
 	}
