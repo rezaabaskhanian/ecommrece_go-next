@@ -2,9 +2,8 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 	"log"
-	"os"
-	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -21,35 +20,35 @@ type Config struct {
 	DBName   string
 }
 
-// func New(cfg Config) *pgxpool.Pool {
-// 	connStr := fmt.Sprintf(
-// 		"postgres://%s:%s@%s:%d/%s?sslmode=disable",
-// 		cfg.UserName,
-// 		cfg.Password,
-// 		cfg.Host,
-// 		cfg.Port,
-// 		cfg.DBName,
-// 	)
+func New(cfg Config) *pgxpool.Pool {
+	connStr := fmt.Sprintf(
+		"postgres://%s:%s@%s:%d/%s?sslmode=disable",
+		cfg.UserName,
+		cfg.Password,
+		cfg.Host,
+		cfg.Port,
+		cfg.DBName,
+	)
 
-// 	pool, err := pgxpool.New(context.Background(), connStr)
-// 	if err != nil {
-// 		log.Fatal("Unable to connect to database:", err)
-// 	}
-
-// 	return pool
-// }
-
-func NewFromDatabaseURL() *pgxpool.Pool {
-	dbURL := strings.TrimSpace(os.Getenv("DATABASE_URL"))
-	if dbURL == "" {
-		log.Fatal("DATABASE_URL env not set")
-	}
-
-	pool, err := pgxpool.New(context.Background(), dbURL)
+	pool, err := pgxpool.New(context.Background(), connStr)
 	if err != nil {
 		log.Fatal("Unable to connect to database:", err)
 	}
 
-	log.Println("✅ connected to postgres")
 	return pool
 }
+
+// func NewFromDatabaseURL() *pgxpool.Pool {
+// 	dbURL := strings.TrimSpace(os.Getenv("DATABASE_URL"))
+// 	if dbURL == "" {
+// 		log.Fatal("DATABASE_URL env not set")
+// 	}
+
+// 	pool, err := pgxpool.New(context.Background(), dbURL)
+// 	if err != nil {
+// 		log.Fatal("Unable to connect to database:", err)
+// 	}
+
+// 	log.Println("✅ connected to postgres")
+// 	return pool
+// }

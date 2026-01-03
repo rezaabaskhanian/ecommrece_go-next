@@ -18,7 +18,6 @@ func (h Handler) EditCategory(c echo.Context) error {
 	const op = "categoryhandler.EditCategory"
 
 	var req param.CategoryAddRequest
-	var id int
 
 	idParam := c.Param("id")
 
@@ -52,7 +51,7 @@ func (h Handler) EditCategory(c echo.Context) error {
 	)
 
 	if err != nil {
-		// اینجا می‌تونی error mapper داشته باشی
+
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": err.Error(),
 		})
