@@ -11,12 +11,15 @@ import (
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/delivery/httpserver/checkouthandler"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/delivery/httpserver/producthandler"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/delivery/httpserver/userhandler"
+	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/delivery/httpserver/validator"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/authservice"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/cartservice"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/categoryservice"
 	checkoutservcie "github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/checkoutservice"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/productservice"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/userservice"
+
+	Middleware "github.com/rezaabaskhanian/ecommrece_go-next.git/internal/delivery/middleware"
 )
 
 type Server struct {
@@ -48,9 +51,15 @@ func New(port int, authSvc authservice.Service, userSvc userservice.Service,
 func (s Server) Serve() {
 	e := echo.New()
 
+	// Validator
+	e.Validator = validator.New()
+
 	// Middleware
 	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
+	// e.Use(middleware.Recover())
+
+	// // اضافه کردن CORS middleware
+	e.Use(Middleware.CORSMiddleware())
 
 	// ✅ Health Check
 	e.GET("/health", func(c echo.Context) error {

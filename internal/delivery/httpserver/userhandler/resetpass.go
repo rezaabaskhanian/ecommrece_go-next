@@ -14,9 +14,11 @@ func (h Handler) UserResetPass(c echo.Context) error {
 	var req param.PasswordRequest
 
 	if err := c.Bind(&req); err != nil {
-
 		return richerror.New(op).WithErr(err).WithMessage("dont req")
+	}
 
+	if err := c.Validate(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	errSvc := h.usersvc.ResetPassword(req)

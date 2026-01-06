@@ -1,0 +1,6 @@
+
+{
+  "platform": "docker",
+  "app": "terrarium",
+  "port": 8081
+}

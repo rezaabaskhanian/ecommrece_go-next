@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -15,6 +17,8 @@ import (
 	checkoutservcie "github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/checkoutservice"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/productservice"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/usecase/userservice"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 const (
@@ -71,10 +75,25 @@ func main() {
 			UserName: os.Getenv("DB_USER"),
 			Password: os.Getenv("DB_PASSWORD"),
 			Host:     os.Getenv("DB_HOST"),
-			Port:     getEnvAsInt("DB_PORT", 5432),
+			Port:     getEnvAsInt("DB_PORT", 5433),
 			DBName:   os.Getenv("DB_NAME"),
 		},
 	}
+
+	dsn := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
+		cfg.MyPostgres.UserName, cfg.MyPostgres.Password, cfg.MyPostgres.Host, cfg.MyPostgres.Port, cfg.MyPostgres.DBName)
+
+	db, err := pgxpool.New(context.Background(), dsn)
+	if err != nil {
+		log.Fatal("DB connection failed:", err)
+	}
+
+	err = db.Ping(context.Background())
+	if err != nil {
+		log.Fatal("DB ping failed:", err)
+	}
+
+	fmt.Println("✅ Database connection successful")
 
 	authSvc, userSvc, authConfig, productSvc, cartSvc, checkoutSvc, categorySvc := setupService(cfg)
 

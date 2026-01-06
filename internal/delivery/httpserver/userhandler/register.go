@@ -1,11 +1,11 @@
 package userhandler
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/param"
-	"github.com/rezaabaskhanian/ecommrece_go-next.git/internal/pkg/richerror"
 )
 
 func (h Handler) userRegister(c echo.Context) error {
@@ -14,16 +14,30 @@ func (h Handler) userRegister(c echo.Context) error {
 
 	var req param.RegisterRequest
 
-	//TODO : add validator for phonenuber and password and etc ...
-
 	if err := c.Bind(&req); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest)
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid body")
+	}
+
+	if err := c.Validate(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	res, err := h.usersvc.Register(req)
 
 	if err != nil {
-		return richerror.New(op).WithErr(err)
+		// لاگ دقیق خطا
+		log.Println(op, "Register service error:", err)
+
+		// تشخیص نوع خطا
+		if err.Error() == "duplicate phone_number" {
+			return echo.NewHTTPError(http.StatusConflict, "Phone number already registered")
+		}
+
+		if err.Error() == "hashing failed" {
+			return echo.NewHTTPError(http.StatusInternalServerError, "Password hashing failed")
+		}
+
+		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
 	}
 
 	return c.JSON(http.StatusCreated, res)

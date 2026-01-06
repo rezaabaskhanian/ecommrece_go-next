@@ -1,8 +1,8 @@
 package param
 
 type LoginRequest struct {
-	PhoneNumber string `json:"phone_number"`
-	Password    string `json:"password"`
+	PhoneNumber string `json:"phone_number" validate:"required,len=11,numeric"`
+	Password    string `json:"password" validate:"required"`
 }
 
 type LoginResponse struct {
